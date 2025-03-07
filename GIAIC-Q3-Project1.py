@@ -42,12 +42,30 @@ if uploaded_file:
         st.write(f"### 📄 {file.name} Preview")
         st.write(df.head())
 
+        # 🔹 Handle Missing Values
+        df.fillna("Not Available", inplace=True)
+
+        # 🔹 Convert Date Columns to Readable Format
+        date_columns = ['Current Case Status Date', 'Date of 1st Institution', 'Date of Institution']
+        for col in date_columns:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%Y-%m-%d')
+
+        # 🔹 Convert 'Hearing Date' to datetime
+        if 'Hearing Date' in df.columns:
+            df['Hearing Date'] = pd.to_datetime(df['Hearing Date'], errors='coerce')
+
+        # 🔹 Drop Unnecessary Columns If Mostly Empty
+        cols_to_drop = ['FIR NO', 'Challan']
+        for col in cols_to_drop:
+            if col in df.columns and df[col].isnull().sum() > 90:  # Drop if more than 90% missing
+                df.drop(columns=[col], inplace=True)
+
         # Data Overview
         st.write("#### ℹ️ Data Info")
         buffer = io.StringIO()  # ✅ Use StringIO() for text-based output
-        df.info(buf=buffer)  
+        df.info(buf=buffer)
         st.text(buffer.getvalue())  # ✅ Now it will work correctly
-
 
         st.write("#### ❓ Missing Values")
         st.write(df.isnull().sum())
@@ -90,3 +108,4 @@ if uploaded_file:
 st.sidebar.info("💡 This app is developed by **GIAIC-Q3-Project1** team. 📩 Contact us at [farhankhaan@yahoo.com](mailto:farhankhaan@yahoo.com).")
 
 st.success("✅ Data Cleaning and Transformation completed successfully!")
+st.write("👋 Thanks for using Data Sweeper!")
