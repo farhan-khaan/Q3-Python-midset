@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from io import BytesIO
+import io
 
 st.set_page_config(page_title="📊 Data Sweeper", page_icon=":bar_chart:", layout="wide")
 
@@ -43,9 +44,10 @@ if uploaded_file:
 
         # Data Overview
         st.write("#### ℹ️ Data Info")
-        buffer = BytesIO()
-        df.info(buf=buffer)
-        st.text(buffer.getvalue())
+        buffer = io.StringIO()  # ✅ Use StringIO() for text-based output
+        df.info(buf=buffer)  
+        st.text(buffer.getvalue())  # ✅ Now it will work correctly
+
 
         st.write("#### ❓ Missing Values")
         st.write(df.isnull().sum())
